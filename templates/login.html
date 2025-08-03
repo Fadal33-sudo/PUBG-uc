@@ -1,191 +1,59 @@
+{% extends "base.html" %}
 
-<!DOCTYPE html>
-<html lang="so">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Walalka Store - Login</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-        body {
-            background: linear-gradient(135deg, #a855f7, #c084fc, #e879f9);
-            min-height: 100vh;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        }
-        
-        .login-card {
-            background: white;
-            border-radius: 30px;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
-            padding: 3rem 2.5rem;
-            max-width: 400px;
-            margin: 0 auto;
-        }
-        
-        .logo-circle {
-            width: 120px;
-            height: 120px;
-            background: #f8fafc;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 2rem;
-            box-shadow: 0 0 0 8px rgba(168, 85, 247, 0.1);
-            transition: all 0.3s ease;
-        }
-        
-        .logo-circle:hover {
-            transform: scale(1.05);
-        }
-        
-        .logo-w {
-            font-size: 3rem;
-            font-weight: bold;
-            color: #3b82f6;
-        }
-        
-        .store-title {
-            color: #1e40af;
-            font-size: 2.2rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-        }
-        
-        .store-subtitle {
-            color: #6b7280;
-            font-size: 1rem;
-            margin-bottom: 2.5rem;
-        }
-        
-        .form-control {
-            height: 60px;
-            border: 1px solid #e5e7eb;
-            border-radius: 20px;
-            padding: 0 60px 0 20px;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-        
-        .form-control:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.15);
-        }
-        
-        .input-group {
-            position: relative;
-            margin-bottom: 1.5rem;
-        }
-        
-        .input-icon {
-            position: absolute;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #6b7280;
-            z-index: 10;
-            font-size: 1.2rem;
-        }
-        
-        .continue-btn {
-            height: 60px;
-            border-radius: 20px;
-            background: linear-gradient(45deg, #1e40af, #3b82f6);
-            border: none;
-            font-weight: 600;
-            font-size: 1.2rem;
-            box-shadow: 0 4px 15px rgba(30, 64, 175, 0.3);
-            transition: all 0.3s ease;
-            color: white;
-            width: 100%;
-            margin-top: 1rem;
-        }
-        
-        .continue-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 30px rgba(30, 64, 175, 0.4);
-            background: linear-gradient(45deg, #1d4ed8, #2563eb);
-        }
-        
-        .register-link {
-            text-decoration: none;
-            color: #3b82f6;
-            font-weight: 500;
-        }
-        
-        .register-link:hover {
-            color: #1d4ed8;
-        }
-        
-        @media (max-width: 576px) {
-            .login-card {
-                padding: 2rem 1.5rem;
-                margin: 1rem;
-            }
-            
-            .store-title {
-                font-size: 1.8rem;
-            }
-            
-            .logo-circle {
-                width: 100px;
-                height: 100px;
-            }
-            
-            .logo-w {
-                font-size: 2.5rem;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="container-fluid vh-100 d-flex align-items-center justify-content-center">
-        <div class="login-card">
-            <!-- Logo Section -->
-            <div class="text-center">
-                <div class="logo-circle">
-                    <span class="logo-w">W</span>
-                </div>
-                
-                <h1 class="store-title">Walalka Store</h1>
-                <p class="store-subtitle">Your one-stop shop for everything</p>
+{% block title %}Login - Walalka UC Store{% endblock %}
+
+{% block content %}
+<div class="container-custom">
+    <div class="page-header">
+        <div class="text-center mb-4">
+            <div class="d-inline-flex align-items-center justify-content-center bg-white rounded-circle shadow-sm" style="width: 80px; height: 80px;">
+                <i class="bi bi-controller" style="font-size: 32px; color: #4facfe;"></i>
             </div>
-            
-            <!-- Login Form -->
-            <form method="POST" action="{{ url_for('login') }}">
-                {% with messages = get_flashed_messages() %}
-                    {% if messages %}
-                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                            {{ messages[0] }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <h1 class="page-title">Walalka UC Store</h1>
+        <p class="page-subtitle">Iibso UC PUBG si fudud oo ammaan ah</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="card-modern">
+                <div class="card-body p-4">
+                    <h4 class="text-center mb-4" style="font-weight: 600; color: var(--text-primary);">
+                        <i class="bi bi-phone me-2"></i>Gali Phone Number
+                    </h4>
+
+                    <form method="POST">
+                        <div class="mb-4">
+                            <label for="phone" class="form-label fw-medium">Phone Number</label>
+                            <div class="position-relative">
+                                <input type="tel" 
+                                       class="form-control-modern w-100" 
+                                       id="phone"
+                                       name="phone" 
+                                       placeholder="+252 63 123 4567" 
+                                       required>
+                                <i class="bi bi-phone position-absolute" style="right: 16px; top: 50%; transform: translateY(-50%); color: var(--text-secondary);"></i>
+                            </div>
+                            <small class="text-muted mt-2 d-block">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Isticmaal +252 furaha dalka
+                            </small>
                         </div>
-                    {% endif %}
-                {% endwith %}
-                
-                <div class="input-group">
-                    <input type="tel" 
-                           class="form-control" 
-                           name="phone" 
-                           placeholder="+252 63 123 4567" 
-                           required>
-                    <i class="bi bi-phone input-icon"></i>
+
+                        <button type="submit" class="btn-primary-modern w-100 mb-3">
+                            <i class="bi bi-arrow-right me-2"></i>Continue
+                        </button>
+                    </form>
+
+                    <div class="text-center">
+                        <p class="text-muted mb-0">Ma leedahay account?</p>
+                        <a href="{{ url_for('register') }}" class="btn-secondary-modern mt-2">
+                            <i class="bi bi-person-plus me-2"></i>Samee Account Cusub
+                        </a>
+                    </div>
                 </div>
-                
-                <button type="submit" class="continue-btn">
-                    <i class="bi bi-arrow-right me-2"></i>Continue
-                </button>
-            </form>
-            
-            <div class="text-center mt-4">
-                <p class="mb-0">
-                    Account ma leedahay? 
-                    <a href="{{ url_for('register') }}" class="register-link">Samee account cusub</a>
-                </p>
             </div>
         </div>
     </div>
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+</div>
+{% endblock %}

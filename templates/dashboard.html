@@ -1,106 +1,127 @@
+
 {% extends "base.html" %}
 
-{% block title %}Dashboard - PUBG UC Marketplace{% endblock %}
+{% block title %}Dashboard - Walalka UC Store{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="text-white">
-                    <i class="bi bi-speedometer2"></i> Dashboard
-                </h2>
-                <a href="{{ url_for('buy_uc') }}" class="btn btn-primary">
-                    <i class="bi bi-cart-plus"></i> Buy UC
+<div class="container-custom">
+    <div class="page-header">
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle">Eeg transactions-yaada</p>
+    </div>
+
+    <!-- User Profile Card -->
+    <div class="card-modern mb-4">
+        <div class="card-body p-4">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <div class="d-flex align-items-center justify-content-center bg-primary bg-gradient rounded-circle" style="width: 60px; height: 60px;">
+                        <i class="bi bi-person-fill text-white" style="font-size: 24px;"></i>
+                    </div>
+                </div>
+                <div class="col">
+                    <h5 class="fw-bold mb-1">{{ current_user.name }}</h5>
+                    <p class="text-muted mb-1">{{ current_user.email }}</p>
+                    <p class="text-muted mb-0" style="font-size: 14px;">{{ current_user.phone_number }}</p>
+                </div>
+                <div class="col-auto">
+                    <div class="text-end">
+                        <div class="fw-bold" style="font-size: 18px; color: #4facfe;">${{ "%.2f"|format(current_user.balance) }}</div>
+                        <small class="text-muted">Balance</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-4">
+            <div class="card-modern">
+                <div class="card-body p-3 text-center">
+                    <i class="bi bi-clock-history text-warning" style="font-size: 24px;"></i>
+                    <div class="fw-bold mt-2">{{ transactions|selectattr('status', 'equalto', 'pending')|list|length }}</div>
+                    <small class="text-muted">Pending</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="card-modern">
+                <div class="card-body p-3 text-center">
+                    <i class="bi bi-check-circle text-success" style="font-size: 24px;"></i>
+                    <div class="fw-bold mt-2">{{ transactions|selectattr('status', 'equalto', 'approved')|list|length }}</div>
+                    <small class="text-muted">Approved</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="card-modern">
+                <div class="card-body p-3 text-center">
+                    <i class="bi bi-list-ul text-primary" style="font-size: 24px;"></i>
+                    <div class="fw-bold mt-2">{{ transactions|length }}</div>
+                    <small class="text-muted">Total</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Transactions -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="text-white fw-bold mb-0">Recent Orders</h5>
+        <a href="{{ url_for('buy_uc') }}" class="btn-primary-modern" style="font-size: 14px; padding: 8px 16px;">
+            <i class="bi bi-plus me-1"></i>New Order
+        </a>
+    </div>
+
+    {% if transactions %}
+        {% for transaction in transactions[:5] %}
+        <div class="card-modern mb-3">
+            <div class="card-body p-4">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <div class="d-flex align-items-center justify-content-center rounded-circle
+                                    {% if transaction.status == 'pending' %}bg-warning bg-opacity-20{% elif transaction.status == 'approved' %}bg-success bg-opacity-20{% else %}bg-danger bg-opacity-20{% endif %}"
+                             style="width: 48px; height: 48px;">
+                            <i class="bi bi-gem 
+                                   {% if transaction.status == 'pending' %}text-warning{% elif transaction.status == 'approved' %}text-success{% else %}text-danger{% endif %}"
+                               style="font-size: 20px;"></i>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="fw-bold">{{ transaction.uc_amount }} UC</div>
+                        <div class="text-muted" style="font-size: 14px;">PUBG ID: {{ transaction.pubg_id }}</div>
+                        <div class="text-muted" style="font-size: 12px;">{{ transaction.created_at.strftime('%d %b %Y, %I:%M %p') }}</div>
+                    </div>
+                    <div class="col-auto text-end">
+                        <div class="fw-bold">${{ "%.2f"|format(transaction.price) }}</div>
+                        <span class="badge rounded-pill
+                                   {% if transaction.status == 'pending' %}bg-warning{% elif transaction.status == 'approved' %}bg-success{% else %}bg-danger{% endif %}">
+                            {{ transaction.status.title() }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        {% if transactions|length > 5 %}
+        <div class="text-center mt-4">
+            <button class="btn-secondary-modern">
+                <i class="bi bi-eye me-2"></i>View All Orders
+            </button>
+        </div>
+        {% endif %}
+    {% else %}
+        <div class="card-modern">
+            <div class="card-body p-5 text-center">
+                <i class="bi bi-cart-x text-muted" style="font-size: 48px;"></i>
+                <h6 class="mt-3 mb-2">No orders yet</h6>
+                <p class="text-muted mb-4">Billow iibsashada UC PUBG</p>
+                <a href="{{ url_for('buy_uc') }}" class="btn-primary-modern">
+                    <i class="bi bi-cart-plus me-2"></i>Buy UC Now
                 </a>
             </div>
         </div>
-    </div>
-
-    <div class="row g-4 mb-4">
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body text-center">
-                    <i class="bi bi-person-circle text-primary" style="font-size: 3rem;"></i>
-                    <h5 class="card-title mt-2">{{ current_user.name }}</h5>
-                    <p class="card-text text-muted">{{ current_user.email }}</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body text-center">
-                    <i class="bi bi-wallet text-success" style="font-size: 3rem;"></i>
-                    <h5 class="card-title mt-2">Balance</h5>
-                    <h4 class="text-success">${{ "%.2f"|format(current_user.balance) }}</h4>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body text-center">
-                    <i class="bi bi-clock-history text-info" style="font-size: 3rem;"></i>
-                    <h5 class="card-title mt-2">Total Orders</h5>
-                    <h4 class="text-info">{{ transactions|length }}</h4>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        <i class="bi bi-clock-history"></i> UC Transaction History
-                    </h5>
-                </div>
-                <div class="card-body">
-                    {% if transactions %}
-                        <div class="table-responsive">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>PUBG ID</th>
-                                        <th>UC Amount</th>
-                                        <th>Price</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for transaction in transactions %}
-                                    <tr>
-                                        <td>{{ transaction.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
-                                        <td>{{ transaction.pubg_id }}</td>
-                                        <td>{{ transaction.uc_amount }} UC</td>
-                                        <td>${{ "%.2f"|format(transaction.price) }}</td>
-                                        <td>
-                                            {% if transaction.status == 'pending' %}
-                                                <span class="status-badge bg-warning text-dark">Pending</span>
-                                            {% elif transaction.status == 'approved' %}
-                                                <span class="status-badge bg-success text-white">Approved</span>
-                                            {% else %}
-                                                <span class="status-badge bg-danger text-white">Rejected</span>
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
-                        </div>
-                    {% else %}
-                        <div class="text-center py-4">
-                            <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
-                            <h5 class="text-muted mt-2">No transactions yet</h5>
-                            <p class="text-muted">Bilow UC iibsashada!</p>
-                        </div>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-    </div>
+    {% endif %}
 </div>
 {% endblock %}

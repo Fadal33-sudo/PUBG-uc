@@ -104,9 +104,10 @@ def load_user(user_id):
 @app.route('/')
 def index():
     if current_user.is_authenticated:
-        return redirect(url_for('dashboard'))
+        packages = UCPackage.query.filter_by(is_active=True).all()
+        return render_template('index.html', packages=packages)
     else:
-        return redirect(url_for('login'))
+        return render_template('index.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():

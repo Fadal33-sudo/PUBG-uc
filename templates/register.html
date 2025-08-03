@@ -1,59 +1,64 @@
 
 {% extends "base.html" %}
 
-{% block title %}Register - PUBG UC Marketplace{% endblock %}
+{% block title %}Register - Walalka UC Store{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row justify-content-center" style="min-height: 80vh; align-items: center;">
-        <div class="col-md-6 col-lg-5">
-            <div class="card">
-                <div class="card-body">
-                    <div class="text-center mb-4">
-                        <i class="bi bi-person-plus text-primary" style="font-size: 3rem;"></i>
-                        <h3 class="card-title mt-2">Register</h3>
-                        <p class="text-muted">Samee account cusub</p>
-                    </div>
-                    
+<div class="container-custom">
+    <div class="page-header">
+        <div class="text-center mb-4">
+            <div class="d-inline-flex align-items-center justify-content-center bg-white rounded-circle shadow-sm" style="width: 80px; height: 80px;">
+                <i class="bi bi-person-plus" style="font-size: 32px; color: #4facfe;"></i>
+            </div>
+        </div>
+        <h1 class="page-title">Samee Account</h1>
+        <p class="page-subtitle">Ku biir bulshada macaamiisha</p>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="card-modern">
+                <div class="card-body p-4">
                     <form method="POST">
                         <div class="mb-3">
-                            <label for="name" class="form-label">Magaca</label>
-                            <input type="text" class="form-control" id="name" name="name" required>
+                            <label for="name" class="form-label fw-medium">Magacaaga</label>
+                            <input type="text" class="form-control-modern" id="name" name="name" placeholder="Gali magacaaga" required>
                         </div>
                         
                         <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
+                            <label for="email" class="form-label fw-medium">Email</label>
+                            <input type="email" class="form-control-modern" id="email" name="email" placeholder="example@email.com" required>
                         </div>
                         
                         <div class="mb-3">
-                            <label for="phone_number" class="form-label">Lambarka Telefoonka</label>
-                            <input type="tel" class="form-control" id="phone_number" name="phone_number" 
-                                   placeholder="+252 63 123 4567 ama 063 123 4567" required>
-                            <div class="form-text">
-                                <small>Somaliland: 63-70 | Somalia: 60-62,68-69,90-99</small>
-                            </div>
+                            <label for="phone_number" class="form-label fw-medium">Phone Number</label>
+                            <input type="tel" class="form-control-modern" id="phone_number" name="phone_number" placeholder="+252 63 123 4567" required>
+                            <small class="text-muted mt-1 d-block">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Isticmaal +252 furaha dalka
+                            </small>
                         </div>
                         
                         <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
+                            <label for="password" class="form-label fw-medium">Password</label>
+                            <input type="password" class="form-control-modern" id="password" name="password" placeholder="Gali password" required>
                         </div>
                         
-                        <div class="mb-3">
-                            <label for="confirm_password" class="form-label">Confirm Password</label>
-                            <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                        <div class="mb-4">
+                            <label for="confirm_password" class="form-label fw-medium">Confirm Password</label>
+                            <input type="password" class="form-control-modern" id="confirm_password" name="confirm_password" placeholder="Ku celi password" required>
                         </div>
                         
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-person-plus"></i> Register
-                            </button>
-                        </div>
+                        <button type="submit" class="btn-primary-modern w-100 mb-3">
+                            <i class="bi bi-person-check me-2"></i>Samee Account
+                        </button>
                     </form>
                     
-                    <div class="text-center mt-3">
-                        <p class="mb-0">Account ma leedahay? <a href="{{ url_for('login') }}" class="text-decoration-none">Login</a></p>
+                    <div class="text-center">
+                        <p class="text-muted mb-0">Ma haysataa account?</p>
+                        <a href="{{ url_for('login') }}" class="btn-secondary-modern mt-2">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                        </a>
                     </div>
                 </div>
             </div>
