@@ -39,7 +39,7 @@ class UCTransaction(db.Model):
 class Payment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    transaction_id = db.Column(db.Integer, db.ForeignKey('u_c_transaction.id'), nullable=False)
+    transaction_id = db.Column(db.Integer, db.ForeignKey('uc_transaction.id'), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     payment_method = db.Column(db.String(50), nullable=False)
     status = db.Column(db.String(20), default='pending')
