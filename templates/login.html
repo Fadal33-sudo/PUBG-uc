@@ -1,62 +1,46 @@
 
 {% extends "base.html" %}
 
-{% block title %}Login - PUBG UC Marketplace{% endblock %}
+{% block title %}Login - Walalka Store{% endblock %}
 
 {% block content %}
-<div class="container-fluid vh-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #8b5fbf, #a78bfa); padding: 20px;">
+<div class="container-fluid vh-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #a855f7, #c084fc, #e879f9); padding: 20px;">
     <div class="row w-100 justify-content-center">
         <div class="col-11 col-sm-8 col-md-6 col-lg-4">
-            <div class="card border-0 shadow-lg" style="border-radius: 25px; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);">
+            <div class="card border-0 shadow-lg" style="border-radius: 30px; background: white; box-shadow: 0 25px 50px rgba(0,0,0,0.15);">
                 <div class="card-body p-5">
                     <!-- Logo Section -->
                     <div class="text-center mb-4">
-                        <div class="logo-circle mx-auto mb-3" style="width: 80px; height: 80px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
-                            <div style="width: 40px; height: 40px; background: linear-gradient(45deg, #1e40af, #3b82f6); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
-                                <span style="color: white; font-weight: bold; font-size: 20px;">P</span>
+                        <div class="logo-circle mx-auto mb-4" style="width: 120px; height: 120px; background: #f8fafc; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 8px rgba(168, 85, 247, 0.1);">
+                            <div style="width: 60px; height: 40px; background: linear-gradient(45deg, #1e40af, #3b82f6); border-radius: 12px; display: flex; align-items: center; justify-content: center; transform: rotate(-10deg);">
+                                <span style="color: white; font-weight: bold; font-size: 24px; transform: rotate(10deg);">W</span>
                             </div>
                         </div>
-                        <h2 class="fw-bold mb-2" style="color: #1e40af; font-size: 2rem;">PUBG UC Store</h2>
-                        <p class="text-muted mb-0">Your one-stop shop for UC</p>
+                        <h1 class="fw-bold mb-2" style="color: #1e40af; font-size: 2.2rem; letter-spacing: -0.5px;">Walalka Store</h1>
+                        <p class="text-muted mb-0" style="font-size: 1rem;">Your one-stop shop for everything</p>
                     </div>
                     
                     <!-- Login Form -->
                     <form method="POST">
-                        <div class="mb-4">
-                            <div class="input-group" style="height: 55px;">
-                                <span class="input-group-text bg-white border-end-0" style="border-radius: 15px 0 0 15px; border-color: #e5e7eb;">
-                                    <i class="bi bi-phone" style="color: #6b7280; font-size: 1.2rem;"></i>
+                        <div class="mb-5">
+                            <div class="input-group" style="height: 60px;">
+                                <span class="input-group-text bg-white border-end-0" style="border-radius: 20px 0 0 20px; border-color: #e5e7eb; padding-left: 20px;">
+                                    <i class="bi bi-phone" style="color: #1e40af; font-size: 1.3rem;"></i>
                                 </span>
                                 <input type="tel" class="form-control border-start-0" id="phone" name="phone" placeholder="Enter phone number..." 
-                                       style="border-radius: 0 15px 15px 0; border-color: #e5e7eb; font-size: 1.1rem; padding-left: 0;"
-                                       required>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-4">
-                            <div class="input-group" style="height: 55px;">
-                                <span class="input-group-text bg-white border-end-0" style="border-radius: 15px 0 0 15px; border-color: #e5e7eb;">
-                                    <i class="bi bi-lock" style="color: #6b7280; font-size: 1.2rem;"></i>
-                                </span>
-                                <input type="password" class="form-control border-start-0" id="password" name="password" placeholder="Enter password..." 
-                                       style="border-radius: 0 15px 15px 0; border-color: #e5e7eb; font-size: 1.1rem; padding-left: 0;"
+                                       style="border-radius: 0 20px 20px 0; border-color: #e5e7eb; font-size: 1.1rem; padding-left: 15px; color: #374151;"
                                        required>
                             </div>
                         </div>
                         
                         <div class="d-grid mb-4">
-                            <button type="submit" class="btn btn-primary" style="height: 55px; border-radius: 15px; background: linear-gradient(45deg, #1e40af, #3b82f6); border: none; font-weight: 600; font-size: 1.1rem;">
-                                <i class="bi bi-arrow-right me-2"></i>Continue
+                            <button type="submit" class="btn btn-primary" style="height: 60px; border-radius: 20px; background: linear-gradient(45deg, #1e40af, #3b82f6); border: none; font-weight: 600; font-size: 1.2rem; box-shadow: 0 4px 15px rgba(30, 64, 175, 0.3);">
+                                <i class="bi bi-arrow-right me-2" style="font-size: 1.1rem;"></i>Continue
                             </button>
                         </div>
                     </form>
                     
-                    <!-- Register Link -->
-                    <div class="text-center">
-                        <p class="mb-0" style="color: #6b7280;">Account ma lihid? 
-                            <a href="{{ url_for('register') }}" class="text-decoration-none fw-semibold" style="color: #1e40af;">Register</a>
-                        </p>
-                    </div>
+                    
                 </div>
             </div>
         </div>
@@ -66,26 +50,50 @@
 <style>
 .form-control:focus {
     border-color: #3b82f6 !important;
-    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25) !important;
+    box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.15) !important;
 }
 
 .input-group-text {
     background: white !important;
+    border: 1px solid #e5e7eb;
 }
 
 .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(30, 64, 175, 0.3);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(30, 64, 175, 0.4) !important;
     transition: all 0.3s ease;
+    background: linear-gradient(45deg, #1d4ed8, #2563eb) !important;
 }
 
 .card {
+    transition: all 0.4s ease;
+}
+
+.logo-circle {
     transition: all 0.3s ease;
 }
 
-.card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.15) !important;
+.logo-circle:hover {
+    transform: scale(1.05);
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+@media (max-width: 576px) {
+    .card-body {
+        padding: 3rem 2rem !important;
+    }
+    
+    h1 {
+        font-size: 1.8rem !important;
+    }
+    
+    .logo-circle {
+        width: 100px !important;
+        height: 100px !important;
+    }
 }
 </style>
 {% endblock %}

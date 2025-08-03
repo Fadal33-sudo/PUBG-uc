@@ -149,24 +149,24 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        phone_or_email = request.form.get('phone', request.form.get('email', ''))
-        password = request.form['password']
+        phone_number = request.form.get('phone', '')
 
-        # Check if input is phone number or email
-        if phone_or_email.startswith(('+252', '252', '61', '62', '63', '64', '65', '66', '67', '68', '69', '70', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99')):
-            # It's a phone number
-            normalized_phone = normalize_phone(phone_or_email)
-            user = User.query.filter_by(phone_number=normalized_phone).first()
-        else:
-            # It's an email
-            user = User.query.filter_by(email=phone_or_email).first()
+        if not validate_somali_phone(phone_number):
+            flash('Fadlan gali phone number saxda ah!')
+            return redirect(url_for('login'))
 
-        if user and check_password_hash(user.password_hash, password):
+        normalized_phone = normalize_phone(phone_number)
+        user = User.query.filter_by(phone_number=normalized_phone).first()
+
+        if user:
+            # For demo purposes, auto-login with phone verification
+            # In real app, you'd send SMS verification code
             login_user(user)
+            flash(f'Ku soo dhaweyn {user.name}!')
             return redirect(url_for('dashboard'))
         else:
-            flash('Invalid phone/email or password!')
-            return redirect(url_for('login'))
+            flash('Phone number ma jiro. Fadlan samee account cusub!')
+            return redirect(url_for('register'))
 
     return render_template('login.html')
 
