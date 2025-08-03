@@ -4,41 +4,88 @@
 {% block title %}Login - PUBG UC Marketplace{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row justify-content-center" style="min-height: 80vh; align-items: center;">
-        <div class="col-md-6 col-lg-4">
-            <div class="card">
-                <div class="card-body">
+<div class="container-fluid vh-100 d-flex align-items-center justify-content-center" style="background: linear-gradient(135deg, #8b5fbf, #a78bfa); padding: 20px;">
+    <div class="row w-100 justify-content-center">
+        <div class="col-11 col-sm-8 col-md-6 col-lg-4">
+            <div class="card border-0 shadow-lg" style="border-radius: 25px; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px);">
+                <div class="card-body p-5">
+                    <!-- Logo Section -->
                     <div class="text-center mb-4">
-                        <i class="bi bi-box-arrow-in-right text-primary" style="font-size: 3rem;"></i>
-                        <h3 class="card-title mt-2">Login</h3>
-                        <p class="text-muted">Gal account-kaaga</p>
+                        <div class="logo-circle mx-auto mb-3" style="width: 80px; height: 80px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
+                            <div style="width: 40px; height: 40px; background: linear-gradient(45deg, #1e40af, #3b82f6); border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                                <span style="color: white; font-weight: bold; font-size: 20px;">P</span>
+                            </div>
+                        </div>
+                        <h2 class="fw-bold mb-2" style="color: #1e40af; font-size: 2rem;">PUBG UC Store</h2>
+                        <p class="text-muted mb-0">Your one-stop shop for UC</p>
                     </div>
                     
+                    <!-- Login Form -->
                     <form method="POST">
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
+                        <div class="mb-4">
+                            <div class="input-group" style="height: 55px;">
+                                <span class="input-group-text bg-white border-end-0" style="border-radius: 15px 0 0 15px; border-color: #e5e7eb;">
+                                    <i class="bi bi-phone" style="color: #6b7280; font-size: 1.2rem;"></i>
+                                </span>
+                                <input type="tel" class="form-control border-start-0" id="phone" name="phone" placeholder="Enter phone number..." 
+                                       style="border-radius: 0 15px 15px 0; border-color: #e5e7eb; font-size: 1.1rem; padding-left: 0;"
+                                       required>
+                            </div>
                         </div>
                         
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
+                        <div class="mb-4">
+                            <div class="input-group" style="height: 55px;">
+                                <span class="input-group-text bg-white border-end-0" style="border-radius: 15px 0 0 15px; border-color: #e5e7eb;">
+                                    <i class="bi bi-lock" style="color: #6b7280; font-size: 1.2rem;"></i>
+                                </span>
+                                <input type="password" class="form-control border-start-0" id="password" name="password" placeholder="Enter password..." 
+                                       style="border-radius: 0 15px 15px 0; border-color: #e5e7eb; font-size: 1.1rem; padding-left: 0;"
+                                       required>
+                            </div>
                         </div>
                         
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-box-arrow-in-right"></i> Login
+                        <div class="d-grid mb-4">
+                            <button type="submit" class="btn btn-primary" style="height: 55px; border-radius: 15px; background: linear-gradient(45deg, #1e40af, #3b82f6); border: none; font-weight: 600; font-size: 1.1rem;">
+                                <i class="bi bi-arrow-right me-2"></i>Continue
                             </button>
                         </div>
                     </form>
                     
-                    <div class="text-center mt-3">
-                        <p class="mb-0">Account ma lihid? <a href="{{ url_for('register') }}" class="text-decoration-none">Register</a></p>
+                    <!-- Register Link -->
+                    <div class="text-center">
+                        <p class="mb-0" style="color: #6b7280;">Account ma lihid? 
+                            <a href="{{ url_for('register') }}" class="text-decoration-none fw-semibold" style="color: #1e40af;">Register</a>
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+.form-control:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25) !important;
+}
+
+.input-group-text {
+    background: white !important;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(30, 64, 175, 0.3);
+    transition: all 0.3s ease;
+}
+
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15) !important;
+}
+</style>
 {% endblock %}

@@ -1,4 +1,3 @@
-
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
@@ -59,10 +58,10 @@ class UCPackage(db.Model):
 def validate_somali_phone(phone):
     """Validate Somaliland and Somalia phone numbers"""
     import re
-    
+
     # Remove spaces, dashes, and plus signs
     phone = re.sub(r'[\s\-\+]', '', phone)
-    
+
     # Somaliland numbers: +252 63/64/65/66/67/68/69/70
     # Somalia numbers: +252 61/62/90/91/92/93/94/95/96/97/98/99
     somaliland_patterns = [
@@ -70,15 +69,15 @@ def validate_somali_phone(phone):
         r'^(063|064|065|066|067|068|069|070)\d{6}$',  # 0 format
         r'^(63|64|65|66|67|68|69|70)\d{6}$'  # without 0
     ]
-    
+
     somalia_patterns = [
         r'^252(61|62|90|91|92|93|94|95|96|97|98|99)\d{6}$',  # +252 format
         r'^(061|062|090|091|092|093|094|095|096|097|098|099)\d{6}$',  # 0 format
         r'^(61|62|90|91|92|93|94|95|96|97|98|99)\d{6}$'  # without 0
     ]
-    
+
     all_patterns = somaliland_patterns + somalia_patterns
-    
+
     for pattern in all_patterns:
         if re.match(pattern, phone):
             return True
@@ -88,7 +87,7 @@ def normalize_phone(phone):
     """Normalize phone number to +252 format"""
     import re
     phone = re.sub(r'[\s\-\+]', '', phone)
-    
+
     if phone.startswith('252'):
         return '+' + phone
     elif phone.startswith('0'):
@@ -114,25 +113,25 @@ def register():
         confirm_password = request.form['confirm_password']
         name = request.form['name']
         phone_number = request.form['phone_number']
-        
+
         if password != confirm_password:
             flash('Passwords do not match!')
             return redirect(url_for('register'))
-        
+
         if User.query.filter_by(email=email).first():
             flash('Email already exists!')
             return redirect(url_for('register'))
-        
+
         if not validate_somali_phone(phone_number):
             flash('Invalid phone number! Isticmaal Somaliland (63-70) ama Somalia (61,62,90-99) numbers.')
             return redirect(url_for('register'))
-        
+
         normalized_phone = normalize_phone(phone_number)
-        
+
         if User.query.filter_by(phone_number=normalized_phone).first():
             flash('Phone number already registered!')
             return redirect(url_for('register'))
-        
+
         user = User(
             email=email,
             password_hash=generate_password_hash(password),
@@ -141,26 +140,34 @@ def register():
         )
         db.session.add(user)
         db.session.commit()
-        
+
         flash('Registration successful! Phone: ' + normalized_phone)
         return redirect(url_for('login'))
-    
+
     return render_template('register.html')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        email = request.form['email']
+        phone_or_email = request.form.get('phone', request.form.get('email', ''))
         password = request.form['password']
-        
-        user = User.query.filter_by(email=email).first()
-        
+
+        # Check if input is phone number or email
+        if phone_or_email.startswith(('+252', '252', '61', '62', '63', '64', '65', '66', '67', '68', '69', '70', '90', '91', '92', '93', '94', '95', '96', '97', '98', '99')):
+            # It's a phone number
+            normalized_phone = normalize_phone(phone_or_email)
+            user = User.query.filter_by(phone_number=normalized_phone).first()
+        else:
+            # It's an email
+            user = User.query.filter_by(email=phone_or_email).first()
+
         if user and check_password_hash(user.password_hash, password):
             login_user(user)
             return redirect(url_for('dashboard'))
         else:
-            flash('Invalid email or password!')
-    
+            flash('Invalid phone/email or password!')
+            return redirect(url_for('login'))
+
     return render_template('login.html')
 
 @app.route('/logout')
@@ -182,12 +189,12 @@ def buy_uc():
         pubg_id = request.form['pubg_id']
         package_id = request.form['package_id']
         payment_method = request.form['payment_method']
-        
+
         package = UCPackage.query.get(package_id)
         if not package:
             flash('Invalid package selected!')
             return redirect(url_for('buy_uc'))
-        
+
         transaction = UCTransaction(
             user_id=current_user.id,
             pubg_id=pubg_id,
@@ -196,7 +203,7 @@ def buy_uc():
         )
         db.session.add(transaction)
         db.session.commit()
-        
+
         payment = Payment(
             user_id=current_user.id,
             transaction_id=transaction.id,
@@ -205,10 +212,10 @@ def buy_uc():
         )
         db.session.add(payment)
         db.session.commit()
-        
+
         flash('UC order placed successfully! Waiting for approval.')
         return redirect(url_for('dashboard'))
-    
+
     packages = UCPackage.query.filter_by(is_active=True).all()
     return render_template('buy_uc.html', packages=packages)
 
@@ -218,11 +225,11 @@ def admin_panel():
     if not current_user.is_admin:
         flash('Access denied!')
         return redirect(url_for('dashboard'))
-    
+
     pending_transactions = UCTransaction.query.filter_by(status='pending').all()
     all_users = User.query.all()
     total_earnings = db.session.query(db.func.sum(Payment.amount)).filter_by(status='completed').scalar() or 0
-    
+
     return render_template('admin.html', 
                          pending_transactions=pending_transactions,
                          all_users=all_users,
@@ -234,7 +241,7 @@ def approve_transaction(transaction_id):
     if not current_user.is_admin:
         flash('Access denied!')
         return redirect(url_for('dashboard'))
-    
+
     transaction = UCTransaction.query.get(transaction_id)
     if transaction:
         transaction.status = 'approved'
@@ -242,7 +249,7 @@ def approve_transaction(transaction_id):
             transaction.payment.status = 'completed'
         db.session.commit()
         flash('Transaction approved!')
-    
+
     return redirect(url_for('admin_panel'))
 
 @app.route('/admin/reject_transaction/<int:transaction_id>')
@@ -251,7 +258,7 @@ def reject_transaction(transaction_id):
     if not current_user.is_admin:
         flash('Access denied!')
         return redirect(url_for('dashboard'))
-    
+
     transaction = UCTransaction.query.get(transaction_id)
     if transaction:
         transaction.status = 'rejected'
@@ -259,7 +266,7 @@ def reject_transaction(transaction_id):
             transaction.payment.status = 'failed'
         db.session.commit()
         flash('Transaction rejected!')
-    
+
     return redirect(url_for('admin_panel'))
 
 @app.route('/admin/packages', methods=['GET', 'POST'])
@@ -268,17 +275,17 @@ def manage_packages():
     if not current_user.is_admin:
         flash('Access denied!')
         return redirect(url_for('dashboard'))
-    
+
     if request.method == 'POST':
         name = request.form['name']
         uc_amount = int(request.form['uc_amount'])
         price = float(request.form['price'])
-        
+
         package = UCPackage(name=name, uc_amount=uc_amount, price=price)
         db.session.add(package)
         db.session.commit()
         flash('Package added successfully!')
-    
+
     packages = UCPackage.query.all()
     return render_template('manage_packages.html', packages=packages)
 
@@ -287,7 +294,7 @@ def manage_packages():
 def api_stats():
     if not current_user.is_admin:
         return jsonify({'error': 'Access denied'}), 403
-    
+
     stats = {
         'total_users': User.query.count(),
         'pending_orders': UCTransaction.query.filter_by(status='pending').count(),
@@ -299,7 +306,7 @@ def api_stats():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-        
+
         # Create admin user if doesn't exist
         admin = User.query.filter_by(email='admin@admin.com').first()
         if not admin:
@@ -312,7 +319,7 @@ if __name__ == '__main__':
                 is_admin=True
             )
             db.session.add(admin)
-            
+
             # Add default UC packages
             packages = [
                 UCPackage(name='60 UC', uc_amount=60, price=0.99),
@@ -324,8 +331,8 @@ if __name__ == '__main__':
             ]
             for package in packages:
                 db.session.add(package)
-            
+
             db.session.commit()
-    
+
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
