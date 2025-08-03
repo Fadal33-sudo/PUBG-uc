@@ -1,0 +1,175 @@
+
+{% extends "base.html" %}
+
+{% block title %}Admin Panel - PUBG UC Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-white">
+                    <i class="bi bi-gear"></i> Admin Panel
+                </h2>
+                <a href="{{ url_for('manage_packages') }}" class="btn btn-primary">
+                    <i class="bi bi-plus"></i> Manage Packages
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="bi bi-people text-primary" style="font-size: 3rem;"></i>
+                    <h5 class="mt-2">Total Users</h5>
+                    <h3 class="text-primary">{{ all_users|length }}</h3>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="bi bi-clock-history text-warning" style="font-size: 3rem;"></i>
+                    <h5 class="mt-2">Pending Orders</h5>
+                    <h3 class="text-warning">{{ pending_transactions|length }}</h3>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="bi bi-currency-dollar text-success" style="font-size: 3rem;"></i>
+                    <h5 class="mt-2">Total Earnings</h5>
+                    <h3 class="text-success">${{ "%.2f"|format(total_earnings) }}</h3>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    <i class="bi bi-gem text-info" style="font-size: 3rem;"></i>
+                    <h5 class="mt-2">Live Stats</h5>
+                    <button class="btn btn-info btn-sm" onclick="refreshStats()">Refresh</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-clock-history"></i> Pending UC Transactions
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if pending_transactions %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>User</th>
+                                        <th>PUBG ID</th>
+                                        <th>UC Amount</th>
+                                        <th>Price</th>
+                                        <th>Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for transaction in pending_transactions %}
+                                    <tr>
+                                        <td>{{ transaction.user.name }}</td>
+                                        <td>{{ transaction.pubg_id }}</td>
+                                        <td>{{ transaction.uc_amount }} UC</td>
+                                        <td>${{ "%.2f"|format(transaction.price) }}</td>
+                                        <td>{{ transaction.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                        <td>
+                                            <a href="{{ url_for('approve_transaction', transaction_id=transaction.id) }}" 
+                                               class="btn btn-success btn-sm">
+                                                <i class="bi bi-check"></i> Approve
+                                            </a>
+                                            <a href="{{ url_for('reject_transaction', transaction_id=transaction.id) }}" 
+                                               class="btn btn-danger btn-sm">
+                                                <i class="bi bi-x"></i> Reject
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-check-circle text-success" style="font-size: 4rem;"></i>
+                            <h5 class="text-muted mt-2">No pending transactions</h5>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-people"></i> All Users
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Balance</th>
+                                    <th>Admin</th>
+                                    <th>Joined</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in all_users %}
+                                <tr>
+                                    <td>{{ user.name }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>${{ "%.2f"|format(user.balance) }}</td>
+                                    <td>
+                                        {% if user.is_admin %}
+                                            <span class="badge bg-primary">Admin</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">User</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function refreshStats() {
+    fetch('/api/stats')
+        .then(response => response.json())
+        .then(data => {
+            // Update stats if needed
+            location.reload();
+        })
+        .catch(error => console.error('Error:', error));
+}
+</script>
+{% endblock %}

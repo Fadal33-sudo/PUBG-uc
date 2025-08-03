@@ -1,0 +1,114 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <h1 class="display-4 fw-bold mb-4">PUBG UC Marketplace</h1>
+                <p class="lead mb-4">Iibso UC PUBG si fudud, ammaan ah, oo dhaqso ah. Waxaad heli doontaa UC-ga aad u baahan tahay in yar gudaheeda!</p>
+                <div class="d-flex gap-3 justify-content-center">
+                    {% if not current_user.is_authenticated %}
+                        <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">
+                            <i class="bi bi-person-plus"></i> Register Now
+                        </a>
+                        <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg">
+                            <i class="bi bi-box-arrow-in-right"></i> Login
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('buy_uc') }}" class="btn btn-primary btn-lg">
+                            <i class="bi bi-cart-plus"></i> Buy UC Now
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center mb-5">
+                <h2 class="display-5 fw-bold text-white">UC Packages</h2>
+                <p class="lead text-white-50">Dooro package-ka ku habboon</p>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            {% for package in packages %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card feature-card h-100">
+                    <div class="card-body text-center">
+                        <div class="text-primary mb-3">
+                            <i class="bi bi-gem" style="font-size: 3rem;"></i>
+                        </div>
+                        <h5 class="card-title">{{ package.name }}</h5>
+                        <p class="card-text">{{ package.uc_amount }} UC</p>
+                        <h4 class="text-primary">${{ "%.2f"|format(package.price) }}</h4>
+                        {% if current_user.is_authenticated %}
+                            <a href="{{ url_for('buy_uc') }}" class="btn btn-primary">
+                                <i class="bi bi-cart-plus"></i> Buy Now
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('login') }}" class="btn btn-outline-primary">
+                                Login to Buy
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center mb-5">
+                <h2 class="display-6 fw-bold">Maxay Nagu Doorteen?</h2>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card feature-card h-100 text-center">
+                    <div class="card-body">
+                        <div class="text-primary mb-3">
+                            <i class="bi bi-shield-check" style="font-size: 3rem;"></i>
+                        </div>
+                        <h5 class="card-title">Ammaan ah</h5>
+                        <p class="card-text">Dhammaan transactions-yada waa kuwo ammaan ah oo encrypted ah.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card feature-card h-100 text-center">
+                    <div class="card-body">
+                        <div class="text-primary mb-3">
+                            <i class="bi bi-lightning" style="font-size: 3rem;"></i>
+                        </div>
+                        <h5 class="card-title">Dhaqso</h5>
+                        <p class="card-text">UC-ga waxa aad heli doontaa 5-15 daqiiqo gudahood.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-4">
+                <div class="card feature-card h-100 text-center">
+                    <div class="card-body">
+                        <div class="text-primary mb-3">
+                            <i class="bi bi-headset" style="font-size: 3rem;"></i>
+                        </div>
+                        <h5 class="card-title">24/7 Support</h5>
+                        <p class="card-text">Customer service 24 saacadood ayaanu ku adeegayaa.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

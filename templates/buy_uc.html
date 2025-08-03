@@ -1,0 +1,129 @@
+
+{% extends "base.html" %}
+
+{% block title %}Buy UC - PUBG UC Marketplace{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        <i class="bi bi-cart-plus"></i> Buy PUBG UC
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="pubg_id" class="form-label">PUBG ID</label>
+                                    <input type="text" class="form-control" id="pubg_id" name="pubg_id" 
+                                           placeholder="Gali PUBG ID-ga" required>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="package_id" class="form-label">UC Package</label>
+                                    <select class="form-select" id="package_id" name="package_id" required>
+                                        <option value="">Dooro package</option>
+                                        {% for package in packages %}
+                                            <option value="{{ package.id }}" data-price="{{ package.price }}">
+                                                {{ package.name }} - ${{ "%.2f"|format(package.price) }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="payment_method" class="form-label">Payment Method</label>
+                            <select class="form-select" id="payment_method" name="payment_method" required>
+                                <option value="">Dooro payment method</option>
+                                <option value="edahab">eDahab</option>
+                                <option value="sahal">Sahal</option>
+                                <option value="paypal">PayPal</option>
+                                <option value="stripe">Credit Card</option>
+                            </select>
+                        </div>
+                        
+                        <div class="card bg-light mb-3" id="order-summary" style="display: none;">
+                            <div class="card-body">
+                                <h6>Order Summary</h6>
+                                <div class="d-flex justify-content-between">
+                                    <span>Package:</span>
+                                    <span id="selected-package">-</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>Price:</span>
+                                    <span id="selected-price">$0.00</span>
+                                </div>
+                                <hr>
+                                <div class="d-flex justify-content-between fw-bold">
+                                    <span>Total:</span>
+                                    <span id="total-price">$0.00</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-credit-card"></i> Place Order
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Available UC Packages</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        {% for package in packages %}
+                        <div class="col-md-6 col-lg-4">
+                            <div class="card h-100 border-primary">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-gem text-primary" style="font-size: 2rem;"></i>
+                                    <h6 class="card-title mt-2">{{ package.name }}</h6>
+                                    <p class="card-text">{{ package.uc_amount }} UC</p>
+                                    <h5 class="text-primary">${{ "%.2f"|format(package.price) }}</h5>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('package_id').addEventListener('change', function() {
+    const selectedOption = this.options[this.selectedIndex];
+    const orderSummary = document.getElementById('order-summary');
+    
+    if (selectedOption.value) {
+        const packageName = selectedOption.text;
+        const price = selectedOption.dataset.price;
+        
+        document.getElementById('selected-package').textContent = packageName;
+        document.getElementById('selected-price').textContent = '$' + parseFloat(price).toFixed(2);
+        document.getElementById('total-price').textContent = '$' + parseFloat(price).toFixed(2);
+        
+        orderSummary.style.display = 'block';
+    } else {
+        orderSummary.style.display = 'none';
+    }
+});
+</script>
+{% endblock %}

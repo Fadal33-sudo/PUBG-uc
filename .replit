@@ -1,3 +1,15 @@
 modules = ["python-base-3.13", "php-8.4", "nodejs-23", "nodejs-24", "postgresql-17", "swift-5.8"]
 [nix]
 channel = "stable-25_05"
+
+[workflows]
+runButton = "Run PUBG UC Marketplace"
+
+[[workflows.workflow]]
+name = "Run PUBG UC Marketplace"
+author = 44905847
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "python app.py"
