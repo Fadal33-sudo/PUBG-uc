@@ -102,8 +102,11 @@ def load_user(user_id):
 # Routes
 @app.route('/')
 def index():
-    packages = UCPackage.query.filter_by(is_active=True).all()
-    return render_template('index.html', packages=packages)
+    if current_user.is_authenticated:
+        packages = UCPackage.query.filter_by(is_active=True).all()
+        return render_template('index.html', packages=packages)
+    else:
+        return redirect(url_for('login'))
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -163,7 +166,7 @@ def login():
             # In real app, you'd send SMS verification code
             login_user(user)
             flash(f'Ku soo dhaweyn {user.name}!')
-            return redirect(url_for('dashboard'))
+            return redirect(url_for('index'))
         else:
             flash('Phone number ma jiro. Fadlan samee account cusub!')
             return redirect(url_for('register'))
