@@ -22,6 +22,8 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(100), unique=True, nullable=False)
     password_hash = db.Column(db.String(100), nullable=False)
     name = db.Column(db.String(100), nullable=False)
+    phone_number = db.Column(db.String(20), unique=True, nullable=False)
+    phone_verified = db.Column(db.Boolean, default=False)
     balance = db.Column(db.Float, default=0.0)
     is_admin = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -54,6 +56,46 @@ class UCPackage(db.Model):
     price = db.Column(db.Float, nullable=False)
     is_active = db.Column(db.Boolean, default=True)
 
+def validate_somali_phone(phone):
+    """Validate Somaliland and Somalia phone numbers"""
+    import re
+    
+    # Remove spaces, dashes, and plus signs
+    phone = re.sub(r'[\s\-\+]', '', phone)
+    
+    # Somaliland numbers: +252 63/64/65/66/67/68/69/70
+    # Somalia numbers: +252 61/62/90/91/92/93/94/95/96/97/98/99
+    somaliland_patterns = [
+        r'^252(63|64|65|66|67|68|69|70)\d{6}$',  # +252 format
+        r'^(063|064|065|066|067|068|069|070)\d{6}$',  # 0 format
+        r'^(63|64|65|66|67|68|69|70)\d{6}$'  # without 0
+    ]
+    
+    somalia_patterns = [
+        r'^252(61|62|90|91|92|93|94|95|96|97|98|99)\d{6}$',  # +252 format
+        r'^(061|062|090|091|092|093|094|095|096|097|098|099)\d{6}$',  # 0 format
+        r'^(61|62|90|91|92|93|94|95|96|97|98|99)\d{6}$'  # without 0
+    ]
+    
+    all_patterns = somaliland_patterns + somalia_patterns
+    
+    for pattern in all_patterns:
+        if re.match(pattern, phone):
+            return True
+    return False
+
+def normalize_phone(phone):
+    """Normalize phone number to +252 format"""
+    import re
+    phone = re.sub(r'[\s\-\+]', '', phone)
+    
+    if phone.startswith('252'):
+        return '+' + phone
+    elif phone.startswith('0'):
+        return '+252' + phone[1:]
+    else:
+        return '+252' + phone
+
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -71,6 +113,7 @@ def register():
         password = request.form['password']
         confirm_password = request.form['confirm_password']
         name = request.form['name']
+        phone_number = request.form['phone_number']
         
         if password != confirm_password:
             flash('Passwords do not match!')
@@ -80,15 +123,26 @@ def register():
             flash('Email already exists!')
             return redirect(url_for('register'))
         
+        if not validate_somali_phone(phone_number):
+            flash('Invalid phone number! Isticmaal Somaliland (63-70) ama Somalia (61,62,90-99) numbers.')
+            return redirect(url_for('register'))
+        
+        normalized_phone = normalize_phone(phone_number)
+        
+        if User.query.filter_by(phone_number=normalized_phone).first():
+            flash('Phone number already registered!')
+            return redirect(url_for('register'))
+        
         user = User(
             email=email,
             password_hash=generate_password_hash(password),
-            name=name
+            name=name,
+            phone_number=normalized_phone
         )
         db.session.add(user)
         db.session.commit()
         
-        flash('Registration successful!')
+        flash('Registration successful! Phone: ' + normalized_phone)
         return redirect(url_for('login'))
     
     return render_template('register.html')
@@ -253,6 +307,8 @@ if __name__ == '__main__':
                 email='admin@admin.com',
                 password_hash=generate_password_hash('admin123'),
                 name='Admin',
+                phone_number='+25263000000',
+                phone_verified=True,
                 is_admin=True
             )
             db.session.add(admin)
