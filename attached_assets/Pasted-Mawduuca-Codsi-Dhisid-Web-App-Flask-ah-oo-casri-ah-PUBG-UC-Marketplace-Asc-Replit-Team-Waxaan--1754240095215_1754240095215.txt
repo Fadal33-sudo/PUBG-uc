@@ -1,0 +1,77 @@
+Mawduuca: Codsi Dhisid Web App Flask ah oo casri ah – PUBG UC Marketplace
+
+Asc Replit Team,
+
+Waxaan jeclaan lahaa in la iiga caawiyo dhismaha web app dhab ah (real production-ready) oo ku dhisan Flask (Python), kaasoo loogu talagalay adeegsi ganacsi oo si fiican loo naqshadeeyey (well-designed) isla markaana leh dhammaan bogagga muhiimka ah ee user-ka iyo admin-ku u baahan yihiin.
+
+Ujeedada Web App-ka:
+
+Waxaan doonayaa in la dhiso system marketplace ah oo u dhexeeya dadka rabta inay iibsadaan UC (PUBG) iyo aniga (ama admin). App-ku wuxuu noqon doonaa meel lacag lagu bixin karo (payment) oo ammaan ah, islamarkaana lagu sameeyo login, register, profile management, dalabyo (orders), and live balance system.
+
+⸻
+
+Waxyaabaha Muhiimka ah ee App-ka:
+
+1. Homepage (Bogga Hore):
+	•	Banner muuqaal qurux badan leh (Hero Section)
+	•	Macluumaad kooban oo ku saabsan adeega PUBG UC Marketplace
+	•	Call to Action (CTA) “Register Now”, “Login”, “Buy UC”
+
+2. Authentication (Login/Register System):
+	•	Foomamka user-ka: email, password, confirm password
+	•	Hashing password via Werkzeug / Flask-Bcrypt
+	•	Session management via Flask-Login
+
+3. Dashboard (User Interface):
+	•	Aragtida guud ee account-ka (User Profile)
+	•	UC History – iibka iyo lacag bixinta
+	•	Real-time balance
+	•	Dalbashada UC (form with PUBG ID, amount, payment)
+
+4. Admin Panel:
+	•	View all users
+	•	Approve or reject UC requests
+	•	View total earnings, live orders, and UC stocks
+	•	Add/edit UC packages
+
+5. Payment System:
+	•	Integration with local or global payment gateway (e.g. Stripe, PayPal, eDahab/Sahal)
+	•	Record transaction history
+	•	Auto or manual approval system
+
+6. Design & Frontend:
+	•	Template responsive ah oo qurux badan (Bootstrap 5, TailwindCSS, ama UI library kale)
+	•	Light/Dark mode
+	•	Mobile-friendly layout
+
+7. Security:
+	•	CSRF Protection
+	•	Input validation
+	•	Admin access protection
+
+8. Database:
+	•	SQLite or PostgreSQL (preferred)
+	•	Models:
+	•	User
+	•	UCTransaction
+	•	Payment
+	•	AdminLog
+
+9. Other Features:
+	•	Live UC Counter
+	•	Push notification/email confirmation
+	•	Feedback/support system
+	•	SEO optimized
+
+⸻
+
+Faa’iidada & Ujeedada Ganacsiga:
+
+Ujeedadu waa in dadka isticmaala ay si fudud u dalban karaan UC PUBG, aniguna aan kasbado lacag (commission) kasta oo dalab ah. System-ku wuxuu noqonayaa mid real ah oo la isticmaali karo ganacsi ahaan.
+
+⸻
+
+Gunaanad:
+Waxaan kaa codsanayaa inaad iiga caawiso dhismaha app-kan iyadoo Replit loo adeegsado, lana isticmaalo tools-ka ugu fiican sida Flask, Jinja2 templates, SQLAlchemy, iyo Bootstrap/Tailwind si design-ku u noqdo mid casri ah.
+
+Haddii wax tafaasiil ah u baahan tahay, diyaar ayaan u ahay inaan bixiyo.
