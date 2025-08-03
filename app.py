@@ -64,6 +64,7 @@ def validate_somali_phone(phone):
 
     # Somaliland numbers: +252 63/64/65/66/67/68/69/70
     # Somalia numbers: +252 61/62/90/91/92/93/94/95/96/97/98/99
+    # Additional Somalia carriers: 60/68/69
     somaliland_patterns = [
         r'^252(63|64|65|66|67|68|69|70)\d{6}$',  # +252 format
         r'^(063|064|065|066|067|068|069|070)\d{6}$',  # 0 format
@@ -71,9 +72,9 @@ def validate_somali_phone(phone):
     ]
 
     somalia_patterns = [
-        r'^252(61|62|90|91|92|93|94|95|96|97|98|99)\d{6}$',  # +252 format
-        r'^(061|062|090|091|092|093|094|095|096|097|098|099)\d{6}$',  # 0 format
-        r'^(61|62|90|91|92|93|94|95|96|97|98|99)\d{6}$'  # without 0
+        r'^252(60|61|62|68|69|90|91|92|93|94|95|96|97|98|99)\d{6}$',  # +252 format
+        r'^(060|061|062|068|069|090|091|092|093|094|095|096|097|098|099)\d{6}$',  # 0 format
+        r'^(60|61|62|68|69|90|91|92|93|94|95|96|97|98|99)\d{6}$'  # without 0
     ]
 
     all_patterns = somaliland_patterns + somalia_patterns
