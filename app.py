@@ -104,8 +104,7 @@ def load_user(user_id):
 @app.route('/')
 def index():
     if current_user.is_authenticated:
-        packages = UCPackage.query.filter_by(is_active=True).all()
-        return render_template('index.html', packages=packages)
+        return redirect(url_for('dashboard'))
     else:
         return redirect(url_for('login'))
 
@@ -155,6 +154,10 @@ def login():
     if request.method == 'POST':
         phone_number = request.form.get('phone', '')
 
+        if not phone_number:
+            flash('Fadlan gali phone number!')
+            return redirect(url_for('login'))
+
         if not validate_somali_phone(phone_number):
             flash('Fadlan gali phone number saxda ah!')
             return redirect(url_for('login'))
@@ -163,11 +166,10 @@ def login():
         user = User.query.filter_by(phone_number=normalized_phone).first()
 
         if user:
-            # For demo purposes, auto-login with phone verification
-            # In real app, you'd send SMS verification code
+            # Auto-login with phone verification
             login_user(user)
             flash(f'Ku soo dhaweyn {user.name}!')
-            return redirect(url_for('index'))
+            return redirect(url_for('dashboard'))
         else:
             flash('Phone number ma jiro. Fadlan samee account cusub!')
             return redirect(url_for('register'))
