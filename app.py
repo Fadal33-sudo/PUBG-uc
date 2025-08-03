@@ -59,42 +59,40 @@ def validate_somali_phone(phone):
     """Validate Somaliland and Somalia phone numbers"""
     import re
 
-    # Remove spaces, dashes, and plus signs
-    phone = re.sub(r'[\s\-\+]', '', phone)
+    # Remove spaces, dashes, and plus signs for validation
+    clean_phone = re.sub(r'[\s\-\+]', '', phone)
 
-    # Somaliland numbers: +252 63/64/65/66/67/68/69/70
-    # Somalia numbers: +252 61/62/90/91/92/93/94/95/96/97/98/99
-    # Additional Somalia carriers: 60/68/69
-    somaliland_patterns = [
-        r'^252(63|64|65|66|67|68|69|70)\d{6}$',  # +252 format
-        r'^(063|064|065|066|067|068|069|070)\d{6}$',  # 0 format
-        r'^(63|64|65|66|67|68|69|70)\d{6}$'  # without 0
+    # More flexible patterns for Somalia/Somaliland
+    # Accept common prefixes: 252, 0, or direct carrier codes
+    patterns = [
+        # Full international format: +252XXXXXXXX (9 digits after 252)
+        r'^252[0-9]{8,9}$',
+        # National format with 0: 0XXXXXXXX (8-9 digits after 0)  
+        r'^0[0-9]{8,9}$',
+        # Direct carrier format: XXXXXXXX (8-9 digits)
+        r'^[0-9]{8,9}$'
     ]
 
-    somalia_patterns = [
-        r'^252(60|61|62|68|69|90|91|92|93|94|95|96|97|98|99)\d{6}$',  # +252 format
-        r'^(060|061|062|068|069|090|091|092|093|094|095|096|097|098|099)\d{6}$',  # 0 format
-        r'^(60|61|62|68|69|90|91|92|93|94|95|96|97|98|99)\d{6}$'  # without 0
-    ]
-
-    all_patterns = somaliland_patterns + somalia_patterns
-
-    for pattern in all_patterns:
-        if re.match(pattern, phone):
+    for pattern in patterns:
+        if re.match(pattern, clean_phone):
             return True
     return False
 
 def normalize_phone(phone):
     """Normalize phone number to +252 format"""
     import re
-    phone = re.sub(r'[\s\-\+]', '', phone)
+    # Remove all spaces, dashes, and plus signs
+    clean_phone = re.sub(r'[\s\-\+]', '', phone)
 
-    if phone.startswith('252'):
-        return '+' + phone
-    elif phone.startswith('0'):
-        return '+252' + phone[1:]
+    # If already starts with 252, add +
+    if clean_phone.startswith('252'):
+        return '+' + clean_phone
+    # If starts with 0, replace with +252
+    elif clean_phone.startswith('0'):
+        return '+252' + clean_phone[1:]
+    # Otherwise assume it needs +252 prefix
     else:
-        return '+252' + phone
+        return '+252' + clean_phone
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -131,11 +129,6 @@ def register():
             return redirect(url_for('register'))
 
         normalized_phone = normalize_phone(phone_number)
-        
-        # Ensure phone starts with +252
-        if not normalized_phone.startswith('+252'):
-            flash('Phone number waa inuu ka bilaabmaa +252!')
-            return redirect(url_for('register'))
 
         if User.query.filter_by(phone_number=normalized_phone).first():
             flash('Phone number already registered!')
@@ -169,11 +162,6 @@ def login():
             return redirect(url_for('login'))
 
         normalized_phone = normalize_phone(phone_number)
-        
-        # Ensure phone starts with +252
-        if not normalized_phone.startswith('+252'):
-            flash('Phone number waa inuu ka bilaabmaa +252!')
-            return redirect(url_for('login'))
         user = User.query.filter_by(phone_number=normalized_phone).first()
 
         if user:
