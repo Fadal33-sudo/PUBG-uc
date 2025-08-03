@@ -130,6 +130,11 @@ def register():
             return redirect(url_for('register'))
 
         normalized_phone = normalize_phone(phone_number)
+        
+        # Ensure phone starts with +252
+        if not normalized_phone.startswith('+252'):
+            flash('Phone number waa inuu ka bilaabmaa +252!')
+            return redirect(url_for('register'))
 
         if User.query.filter_by(phone_number=normalized_phone).first():
             flash('Phone number already registered!')
@@ -163,6 +168,11 @@ def login():
             return redirect(url_for('login'))
 
         normalized_phone = normalize_phone(phone_number)
+        
+        # Ensure phone starts with +252
+        if not normalized_phone.startswith('+252'):
+            flash('Phone number waa inuu ka bilaabmaa +252!')
+            return redirect(url_for('login'))
         user = User.query.filter_by(phone_number=normalized_phone).first()
 
         if user:
