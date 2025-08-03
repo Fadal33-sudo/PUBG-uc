@@ -1,114 +1,286 @@
 
 {% extends "base.html" %}
 
+{% block title %}Walalka Store - Home{% endblock %}
+
 {% block content %}
-<section class="hero-section">
+<style>
+    body {
+        background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    
+    .header-bar {
+        background: #1e40af;
+        padding: 1rem 0;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .search-container {
+        background: white;
+        border-radius: 25px;
+        padding: 0.5rem;
+        margin: 2rem 0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    .search-input {
+        border: none;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        width: 100%;
+        background: transparent;
+    }
+    
+    .search-input:focus {
+        outline: none;
+    }
+    
+    .category-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        overflow: hidden;
+        height: 200px;
+    }
+    
+    .category-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+    
+    .category-image {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+    }
+    
+    .category-title {
+        font-weight: 600;
+        color: #1f2937;
+        margin: 0.5rem 0;
+    }
+    
+    .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        padding: 1rem 0;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+        border-top: 1px solid #e5e7eb;
+    }
+    
+    .nav-item {
+        text-align: center;
+        text-decoration: none;
+        color: #6b7280;
+        transition: color 0.3s ease;
+    }
+    
+    .nav-item.active {
+        color: #3b82f6;
+    }
+    
+    .nav-item:hover {
+        color: #3b82f6;
+    }
+    
+    .nav-icon {
+        font-size: 1.5rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .nav-text {
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    
+    .slider-container {
+        background: linear-gradient(45deg, #3b82f6, #1e40af);
+        border-radius: 20px;
+        padding: 2rem;
+        margin: 2rem 0;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .slider-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .promo-badge {
+        background: rgba(255,255,255,0.2);
+        padding: 0.5rem 1rem;
+        border-radius: 15px;
+        display: inline-block;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+</style>
+
+<!-- Header -->
+<div class="header-bar">
     <div class="container">
-        <div class="row">
-            <div class="col-lg-8 mx-auto">
-                <h1 class="display-4 fw-bold mb-4">PUBG UC Marketplace</h1>
-                <p class="lead mb-4">Iibso UC PUBG si fudud, ammaan ah, oo dhaqso ah. Waxaad heli doontaa UC-ga aad u baahan tahay in yar gudaheeda!</p>
-                <div class="d-flex gap-3 justify-content-center">
-                    {% if not current_user.is_authenticated %}
-                        <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">
-                            <i class="bi bi-person-plus"></i> Register Now
-                        </a>
-                        <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg">
-                            <i class="bi bi-box-arrow-in-right"></i> Login
-                        </a>
-                    {% else %}
-                        <a href="{{ url_for('buy_uc') }}" class="btn btn-primary btn-lg">
-                            <i class="bi bi-cart-plus"></i> Buy UC Now
-                        </a>
-                    {% endif %}
+        <div class="row align-items-center">
+            <div class="col-3">
+                <div class="text-white">
+                    <i class="bi bi-gear" style="font-size: 1.5rem;"></i>
                 </div>
+            </div>
+            <div class="col-6 text-center">
+                <h4 class="text-white mb-0 fw-bold">WALALKA STORE</h4>
+            </div>
+            <div class="col-3 text-end">
+                <i class="bi bi-search text-white" style="font-size: 1.5rem;"></i>
+                <i class="bi bi-bell text-white ms-3" style="font-size: 1.5rem;"></i>
+                <i class="bi bi-person-circle text-white ms-3" style="font-size: 1.5rem;"></i>
             </div>
         </div>
     </div>
-</section>
+</div>
 
-<section class="py-5">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12 text-center mb-5">
-                <h2 class="display-5 fw-bold text-white">UC Packages</h2>
-                <p class="lead text-white-50">Dooro package-ka ku habboon</p>
+<!-- Main Content -->
+<div class="container" style="padding-bottom: 100px;">
+    <!-- Search Bar -->
+    <div class="search-container">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-search text-muted ms-3"></i>
+            <input type="text" class="search-input" placeholder="Search games, credits...">
+        </div>
+    </div>
+    
+    <!-- Promotional Slider -->
+    <div class="slider-container">
+        <div class="slider-content">
+            <div class="promo-badge">WALALKA STORE waa kuu diyaar!</div>
+            <h3 class="mb-2">Gaming Credits & More</h3>
+            <p class="mb-0">Iibso UC, diamonds, iyo wax kale oo casri ah!</p>
+        </div>
+    </div>
+    
+    <!-- Categories Section -->
+    <div class="row">
+        <div class="col-12">
+            <h5 class="fw-bold text-dark mb-3">Categories</h5>
+        </div>
+    </div>
+    
+    <div class="row g-3">
+        <div class="col-6">
+            <a href="{{ url_for('buy_uc') }}" class="text-decoration-none">
+                <div class="category-card">
+                    <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?w=300&h=200&fit=crop" 
+                         alt="PUBG Mobile" class="category-image">
+                    <div class="p-3">
+                        <h6 class="category-title">PUBG MOBILE</h6>
+                        <small class="text-muted">UC & Battle Pass</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-6">
+            <div class="category-card">
+                <div class="d-flex align-items-center justify-content-center h-100 bg-warning">
+                    <div class="text-center text-dark">
+                        <h4 class="fw-bold mb-2">GROWTH PACK</h4>
+                        <div class="badge bg-dark">10% OFF</div>
+                    </div>
+                </div>
             </div>
         </div>
         
-        <div class="row g-4">
-            {% for package in packages %}
-            <div class="col-md-6 col-lg-4">
-                <div class="card feature-card h-100">
-                    <div class="card-body text-center">
-                        <div class="text-primary mb-3">
-                            <i class="bi bi-gem" style="font-size: 3rem;"></i>
-                        </div>
-                        <h5 class="card-title">{{ package.name }}</h5>
-                        <p class="card-text">{{ package.uc_amount }} UC</p>
-                        <h4 class="text-primary">${{ "%.2f"|format(package.price) }}</h4>
-                        {% if current_user.is_authenticated %}
-                            <a href="{{ url_for('buy_uc') }}" class="btn btn-primary">
-                                <i class="bi bi-cart-plus"></i> Buy Now
-                            </a>
-                        {% else %}
-                            <a href="{{ url_for('login') }}" class="btn btn-outline-primary">
-                                Login to Buy
-                            </a>
-                        {% endif %}
+        <div class="col-6">
+            <div class="category-card">
+                <div class="d-flex align-items-center justify-content-center h-100 bg-info">
+                    <div class="text-center text-white">
+                        <i class="bi bi-controller" style="font-size: 3rem;"></i>
+                        <h6 class="mt-2">FREE FIRE</h6>
                     </div>
                 </div>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</section>
-
-<section class="py-5 bg-light">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12 text-center mb-5">
-                <h2 class="display-6 fw-bold">Maxay Nagu Doorteen?</h2>
             </div>
         </div>
         
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card feature-card h-100 text-center">
-                    <div class="card-body">
-                        <div class="text-primary mb-3">
-                            <i class="bi bi-shield-check" style="font-size: 3rem;"></i>
-                        </div>
-                        <h5 class="card-title">Ammaan ah</h5>
-                        <p class="card-text">Dhammaan transactions-yada waa kuwo ammaan ah oo encrypted ah.</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="card feature-card h-100 text-center">
-                    <div class="card-body">
-                        <div class="text-primary mb-3">
-                            <i class="bi bi-lightning" style="font-size: 3rem;"></i>
-                        </div>
-                        <h5 class="card-title">Dhaqso</h5>
-                        <p class="card-text">UC-ga waxa aad heli doontaa 5-15 daqiiqo gudahood.</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="card feature-card h-100 text-center">
-                    <div class="card-body">
-                        <div class="text-primary mb-3">
-                            <i class="bi bi-headset" style="font-size: 3rem;"></i>
-                        </div>
-                        <h5 class="card-title">24/7 Support</h5>
-                        <p class="card-text">Customer service 24 saacadood ayaanu ku adeegayaa.</p>
+        <div class="col-6">
+            <div class="category-card">
+                <div class="d-flex align-items-center justify-content-center h-100 bg-success">
+                    <div class="text-center text-white">
+                        <i class="bi bi-gem" style="font-size: 3rem;"></i>
+                        <h6 class="mt-2">DIAMONDS</h6>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</section>
+    
+    <!-- UC Packages -->
+    {% if packages %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <h5 class="fw-bold text-dark mb-3">PUBG UC Packages</h5>
+        </div>
+    </div>
+    
+    <div class="row g-3">
+        {% for package in packages %}
+        <div class="col-6 col-md-4">
+            <div class="category-card">
+                <div class="d-flex align-items-center justify-content-center h-100 bg-primary">
+                    <div class="text-center text-white">
+                        <i class="bi bi-currency-dollar" style="font-size: 2rem;"></i>
+                        <h6 class="mt-2">{{ package.uc_amount }} UC</h6>
+                        <small>${{ "%.2f"|format(package.price) }}</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Bottom Navigation -->
+<div class="bottom-nav">
+    <div class="container">
+        <div class="row">
+            <div class="col-3">
+                <a href="{{ url_for('index') }}" class="nav-item active d-block">
+                    <div class="nav-icon">
+                        <i class="bi bi-house-fill"></i>
+                    </div>
+                    <div class="nav-text">Home</div>
+                </a>
+            </div>
+            <div class="col-3">
+                <a href="{{ url_for('buy_uc') }}" class="nav-item d-block">
+                    <div class="nav-icon">
+                        <i class="bi bi-cart"></i>
+                    </div>
+                    <div class="nav-text">Cart</div>
+                </a>
+            </div>
+            <div class="col-3">
+                <a href="{{ url_for('dashboard') }}" class="nav-item d-block">
+                    <div class="nav-icon">
+                        <i class="bi bi-list-ul"></i>
+                    </div>
+                    <div class="nav-text">Dalabyadi</div>
+                </a>
+            </div>
+            <div class="col-3">
+                <a href="{{ url_for('dashboard') }}" class="nav-item d-block">
+                    <div class="nav-icon">
+                        <i class="bi bi-person"></i>
+                    </div>
+                    <div class="nav-text">Akoonkayga</div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
