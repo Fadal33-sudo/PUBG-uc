@@ -4,9 +4,20 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import os
+from utils import validate_somali_phone, normalize_phone
+from functools import wraps
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated or not current_user.is_admin:
+            flash('Access denied: Admins only!')
+            return redirect(url_for('dashboard'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-change-this')
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', os.urandom(24))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///pubg_marketplace.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -55,45 +66,6 @@ class UCPackage(db.Model):
     price = db.Column(db.Float, nullable=False)
     is_active = db.Column(db.Boolean, default=True)
 
-def validate_somali_phone(phone):
-    """Validate Somaliland and Somalia phone numbers"""
-    import re
-
-    # Remove spaces, dashes, and plus signs for validation
-    clean_phone = re.sub(r'[\s\-\+]', '', phone)
-
-    # More flexible patterns for Somalia/Somaliland
-    # Accept common prefixes: 252, 0, or direct carrier codes
-    patterns = [
-        # Full international format: +252XXXXXXXX (9 digits after 252)
-        r'^252[0-9]{8,9}$',
-        # National format with 0: 0XXXXXXXX (8-9 digits after 0)  
-        r'^0[0-9]{8,9}$',
-        # Direct carrier format: XXXXXXXX (8-9 digits)
-        r'^[0-9]{8,9}$'
-    ]
-
-    for pattern in patterns:
-        if re.match(pattern, clean_phone):
-            return True
-    return False
-
-def normalize_phone(phone):
-    """Normalize phone number to +252 format"""
-    import re
-    # Remove all spaces, dashes, and plus signs
-    clean_phone = re.sub(r'[\s\-\+]', '', phone)
-
-    # If already starts with 252, add +
-    if clean_phone.startswith('252'):
-        return '+' + clean_phone
-    # If starts with 0, replace with +252
-    elif clean_phone.startswith('0'):
-        return '+252' + clean_phone[1:]
-    # Otherwise assume it needs +252 prefix
-    else:
-        return '+252' + clean_phone
-
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -140,11 +112,15 @@ def register():
             name=name,
             phone_number=normalized_phone
         )
-        db.session.add(user)
-        db.session.commit()
-
-        flash('Registration successful! Phone: ' + normalized_phone)
-        return redirect(url_for('login'))
+        try:
+            db.session.add(user)
+            db.session.commit()
+            flash('Registration successful! Phone: ' + normalized_phone)
+            return redirect(url_for('login'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Registration failed: {e}')
+            return redirect(url_for('register'))
 
     return render_template('register.html')
 
@@ -152,9 +128,10 @@ def register():
 def login():
     if request.method == 'POST':
         phone_number = request.form.get('phone', '')
+        password = request.form.get('password', '')
 
-        if not phone_number:
-            flash('Fadlan gali phone number!')
+        if not phone_number or not password:
+            flash('Fadlan gali phone number iyo password!')
             return redirect(url_for('login'))
 
         if not validate_somali_phone(phone_number):
@@ -164,14 +141,14 @@ def login():
         normalized_phone = normalize_phone(phone_number)
         user = User.query.filter_by(phone_number=normalized_phone).first()
 
-        if user:
+        if user and check_password_hash(user.password_hash, password):
             # Auto-login with phone verification
             login_user(user)
             flash(f'Ku soo dhaweyn {user.name}!')
             return redirect(url_for('dashboard'))
         else:
-            flash('Phone number ma jiro. Fadlan samee account cusub!')
-            return redirect(url_for('register'))
+            flash('Phone number ama password khalad ah!')
+            return redirect(url_for('login'))
 
     return render_template('login.html')
 
@@ -195,6 +172,10 @@ def buy_uc():
         package_id = request.form['package_id']
         payment_method = request.form['payment_method']
 
+        if not re.match(r'^[a-zA-Z0-9]{6,20}$', pubg_id):
+            flash('Invalid PUBG ID. It should be 6-20 alphanumeric characters.')
+            return redirect(url_for('buy_uc'))
+
         package = UCPackage.query.get(package_id)
         if not package:
             flash('Invalid package selected!')
@@ -206,31 +187,33 @@ def buy_uc():
             uc_amount=package.uc_amount,
             price=package.price
         )
-        db.session.add(transaction)
-        db.session.commit()
+        try:
+            db.session.add(transaction)
+            db.session.commit()
 
-        payment = Payment(
-            user_id=current_user.id,
-            transaction_id=transaction.id,
-            amount=package.price,
-            payment_method=payment_method
-        )
-        db.session.add(payment)
-        db.session.commit()
+            payment = Payment(
+                user_id=current_user.id,
+                transaction_id=transaction.id,
+                amount=package.price,
+                payment_method=payment_method
+            )
+            db.session.add(payment)
+            db.session.commit()
 
-        flash('UC order placed successfully! Waiting for approval.')
-        return redirect(url_for('dashboard'))
+            flash('UC order placed successfully! Waiting for approval.')
+            return redirect(url_for('dashboard'))
+        except Exception as e:
+            db.session.rollback()
+            flash(f'Order placement failed: {e}')
+            return redirect(url_for('buy_uc'))
 
     packages = UCPackage.query.filter_by(is_active=True).all()
     return render_template('buy_uc.html', packages=packages)
 
 @app.route('/admin')
 @login_required
+@admin_required
 def admin_panel():
-    if not current_user.is_admin:
-        flash('Access denied!')
-        return redirect(url_for('dashboard'))
-
     pending_transactions = UCTransaction.query.filter_by(status='pending').all()
     all_users = User.query.all()
     total_earnings = db.session.query(db.func.sum(Payment.amount)).filter_by(status='completed').scalar() or 0
@@ -242,11 +225,8 @@ def admin_panel():
 
 @app.route('/admin/approve_transaction/<int:transaction_id>')
 @login_required
+@admin_required
 def approve_transaction(transaction_id):
-    if not current_user.is_admin:
-        flash('Access denied!')
-        return redirect(url_for('dashboard'))
-
     transaction = UCTransaction.query.get(transaction_id)
     if transaction:
         transaction.status = 'approved'
@@ -259,11 +239,8 @@ def approve_transaction(transaction_id):
 
 @app.route('/admin/reject_transaction/<int:transaction_id>')
 @login_required
+@admin_required
 def reject_transaction(transaction_id):
-    if not current_user.is_admin:
-        flash('Access denied!')
-        return redirect(url_for('dashboard'))
-
     transaction = UCTransaction.query.get(transaction_id)
     if transaction:
         transaction.status = 'rejected'
@@ -276,11 +253,8 @@ def reject_transaction(transaction_id):
 
 @app.route('/admin/packages', methods=['GET', 'POST'])
 @login_required
+@admin_required
 def manage_packages():
-    if not current_user.is_admin:
-        flash('Access denied!')
-        return redirect(url_for('dashboard'))
-
     if request.method == 'POST':
         name = request.form['name']
         uc_amount = int(request.form['uc_amount'])
@@ -296,10 +270,8 @@ def manage_packages():
 
 @app.route('/api/stats')
 @login_required
+@admin_required
 def api_stats():
-    if not current_user.is_admin:
-        return jsonify({'error': 'Access denied'}), 403
-
     stats = {
         'total_users': User.query.count(),
         'pending_orders': UCTransaction.query.filter_by(status='pending').count(),
@@ -308,7 +280,7 @@ def api_stats():
     }
     return jsonify(stats)
 
-if __name__ == '__main__':
+def init_db_and_data():
     with app.app_context():
         db.create_all()
 
@@ -339,5 +311,7 @@ if __name__ == '__main__':
 
             db.session.commit()
 
+if __name__ == '__main__':
+    init_db_and_data()
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
