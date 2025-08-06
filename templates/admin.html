@@ -77,6 +77,9 @@
                                         <th>PUBG ID</th>
                                         <th>UC Amount</th>
                                         <th>Price</th>
+                                        <th>Payment Method</th>
+                                        <th>Transaction ID</th>
+                                        <th>Screenshot</th>
                                         <th>Date</th>
                                         <th>Actions</th>
                                     </tr>
@@ -88,6 +91,15 @@
                                         <td>{{ transaction.pubg_id }}</td>
                                         <td>{{ transaction.uc_amount }} UC</td>
                                         <td>${{ "%.2f"|format(transaction.price) }}</td>
+                                        <td>{{ transaction.payment.payment_method if transaction.payment else 'N/A' }}</td>
+                                        <td>{{ transaction.payment.transaction_ref if transaction.payment else 'N/A' }}</td>
+                                        <td>
+                                            {% if transaction.payment and transaction.payment.screenshot_path %}
+                                                <a href="{{ url_for('uploaded_file', filename=transaction.payment.screenshot_path.split('/')[-1]) }}" target="_blank">View</a>
+                                            {% else %}
+                                                N/A
+                                            {% endif %}
+                                        </td>
                                         <td>{{ transaction.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
                                         <td>
                                             <a href="{{ url_for('approve_transaction', transaction_id=transaction.id) }}" 

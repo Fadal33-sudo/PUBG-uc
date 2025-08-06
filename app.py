@@ -1,10 +1,11 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
 import os
 from utils import validate_somali_phone, normalize_phone
+import uuid
 from functools import wraps
 
 def admin_required(f):
@@ -20,6 +21,12 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', os.urandom(24))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///pubg_marketplace.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+UPLOAD_FOLDER = 'static/uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
 
 db = SQLAlchemy(app)
 login_manager = LoginManager()
@@ -54,6 +61,8 @@ class Payment(db.Model):
     transaction_id = db.Column(db.Integer, db.ForeignKey('uc_transaction.id'), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     payment_method = db.Column(db.String(50), nullable=False)
+    transaction_ref = db.Column(db.String(100), nullable=True) # For transaction ID
+    screenshot_path = db.Column(db.String(255), nullable=True) # Path to uploaded screenshot
     status = db.Column(db.String(20), default='pending')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     user = db.relationship('User', backref=db.backref('payments', lazy=True))
@@ -171,7 +180,16 @@ def buy_uc():
         pubg_id = request.form['pubg_id']
         package_id = request.form['package_id']
         payment_method = request.form['payment_method']
+        transaction_id = request.form.get('transaction_id')
+        payment_screenshot = request.files.get('payment_screenshot')
 
+        screenshot_filename = None
+        if payment_screenshot and payment_screenshot.filename:
+            filename = str(uuid.uuid4()) + os.path.splitext(payment_screenshot.filename)[1]
+            screenshot_filename = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            payment_screenshot.save(screenshot_filename)
+
+        import re
         if not re.match(r'^[a-zA-Z0-9]{6,20}$', pubg_id):
             flash('Invalid PUBG ID. It should be 6-20 alphanumeric characters.')
             return redirect(url_for('buy_uc'))
@@ -195,7 +213,9 @@ def buy_uc():
                 user_id=current_user.id,
                 transaction_id=transaction.id,
                 amount=package.price,
-                payment_method=payment_method
+                payment_method=payment_method,
+                transaction_ref=transaction_id,
+                screenshot_path=screenshot_filename
             )
             db.session.add(payment)
             db.session.commit()
@@ -215,11 +235,13 @@ def buy_uc():
 @admin_required
 def admin_panel():
     pending_transactions = UCTransaction.query.filter_by(status='pending').all()
+    pending_payments = Payment.query.filter_by(status='pending').all()
     all_users = User.query.all()
     total_earnings = db.session.query(db.func.sum(Payment.amount)).filter_by(status='completed').scalar() or 0
 
     return render_template('admin.html', 
                          pending_transactions=pending_transactions,
+                         pending_payments=pending_payments,
                          all_users=all_users,
                          total_earnings=total_earnings)
 
@@ -279,6 +301,10 @@ def api_stats():
         'completed_orders': UCTransaction.query.filter_by(status='approved').count()
     }
     return jsonify(stats)
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 def init_db_and_data():
     with app.app_context():
