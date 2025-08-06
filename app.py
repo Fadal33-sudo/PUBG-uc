@@ -7,6 +7,9 @@ import os
 from utils import validate_somali_phone, normalize_phone
 import uuid
 from functools import wraps
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def admin_required(f):
     @wraps(f)
@@ -36,10 +39,10 @@ login_manager.login_view = 'login'
 # Database Models
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(100), unique=True, nullable=False)
+    email = db.Column(db.String(100), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(100), nullable=False)
     name = db.Column(db.String(100), nullable=False)
-    phone_number = db.Column(db.String(20), unique=True, nullable=False)
+    phone_number = db.Column(db.String(20), unique=True, nullable=False, index=True)
     phone_verified = db.Column(db.Boolean, default=False)
     balance = db.Column(db.Float, default=0.0)
     is_admin = db.Column(db.Boolean, default=False)
@@ -51,29 +54,30 @@ class UCTransaction(db.Model):
     pubg_id = db.Column(db.String(50), nullable=False)
     uc_amount = db.Column(db.Integer, nullable=False)
     price = db.Column(db.Float, nullable=False)
-    status = db.Column(db.String(20), default='pending')  # pending, approved, rejected
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    status = db.Column(db.String(20), default='pending', index=True)  # pending, approved, rejected
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
     user = db.relationship('User', backref=db.backref('transactions', lazy=True))
 
 class Payment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     transaction_id = db.Column(db.Integer, db.ForeignKey('uc_transaction.id'), nullable=False)
-    amount = db.Column(db.Float, nullable=False)
+    amount = db.Column(db.Float, nullable=False, index=True)
     payment_method = db.Column(db.String(50), nullable=False)
     transaction_ref = db.Column(db.String(100), nullable=True) # For transaction ID
     screenshot_path = db.Column(db.String(255), nullable=True) # Path to uploaded screenshot
-    status = db.Column(db.String(20), default='pending')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    status = db.Column(db.String(20), default='pending', index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, index=True)
     user = db.relationship('User', backref=db.backref('payments', lazy=True))
     transaction = db.relationship('UCTransaction', backref=db.backref('payment', lazy=True))
 
 class UCPackage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    uc_amount = db.Column(db.Integer, nullable=False)
-    price = db.Column(db.Float, nullable=False)
-    is_active = db.Column(db.Boolean, default=True)
+    name = db.Column(db.String(100), nullable=False, index=True)
+    uc_amount = db.Column(db.Integer, nullable=False, index=True)
+    price = db.Column(db.Float, nullable=False, index=True)
+    is_active = db.Column(db.Boolean, default=True, index=True)
+    image_filename = db.Column(db.String(255), nullable=True)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -84,7 +88,8 @@ def load_user(user_id):
 def index():
     if current_user.is_authenticated:
         packages = UCPackage.query.filter_by(is_active=True).all()
-        return render_template('index.html', packages=packages)
+        transaction_count = UCTransaction.query.filter_by(user_id=current_user.id).count()
+        return render_template('index.html', packages=packages, transaction_count=transaction_count)
     else:
         return render_template('index.html')
 
@@ -128,6 +133,7 @@ def register():
             return redirect(url_for('login'))
         except Exception as e:
             db.session.rollback()
+            logging.error(f"Registration failed for email {email}: {e}")
             flash(f'Registration failed: {e}')
             return redirect(url_for('register'))
 
@@ -190,8 +196,18 @@ def buy_uc():
             payment_screenshot.save(screenshot_filename)
 
         import re
-        if not re.match(r'^[a-zA-Z0-9]{6,20}$', pubg_id):
-            flash('Invalid PUBG ID. It should be 6-20 alphanumeric characters.')
+        # PUBG IDs are typically numeric. This is a basic validation.
+        if not pubg_id.isdigit():
+            flash('PUBG ID waa inuu ka koobnaado tirooyin keliya.')
+            return redirect(url_for('buy_uc'))
+        
+        # Original alphanumeric validation, kept for flexibility if IDs can contain letters
+        # if not re.match(r'^[a-zA-Z0-9]{6,20}$', pubg_id):
+        #     flash('Invalid PUBG ID. It should be 6-20 alphanumeric characters.')
+        #     return redirect(url_for('buy_uc'))
+
+        if not (6 <= len(pubg_id) <= 20):
+            flash('PUBG ID waa inuu u dhexeeyaa 6 ilaa 20 xaraf ama tiro.')
             return redirect(url_for('buy_uc'))
 
         package = UCPackage.query.get(package_id)
@@ -224,6 +240,7 @@ def buy_uc():
             return redirect(url_for('dashboard'))
         except Exception as e:
             db.session.rollback()
+            logging.error(f"Order placement failed for user {current_user.id}: {e}")
             flash(f'Order placement failed: {e}')
             return redirect(url_for('buy_uc'))
 
@@ -283,9 +300,14 @@ def manage_packages():
         price = float(request.form['price'])
 
         package = UCPackage(name=name, uc_amount=uc_amount, price=price)
-        db.session.add(package)
-        db.session.commit()
-        flash('Package added successfully!')
+        try:
+            db.session.add(package)
+            db.session.commit()
+            flash('Package added successfully!')
+        except Exception as e:
+            db.session.rollback()
+            logging.error(f"Failed to add package: {e}")
+            flash(f'Failed to add package: {e}')
 
     packages = UCPackage.query.all()
     return render_template('manage_packages.html', packages=packages)
@@ -325,17 +347,16 @@ def init_db_and_data():
 
             # Add default UC packages
             packages = [
-                UCPackage(name='60 UC', uc_amount=60, price=0.99),
-                UCPackage(name='325 UC', uc_amount=325, price=4.99),
-                UCPackage(name='660 UC', uc_amount=660, price=9.99),
-                UCPackage(name='1800 UC', uc_amount=1800, price=24.99),
-                UCPackage(name='3850 UC', uc_amount=3850, price=49.99),
-                UCPackage(name='8100 UC', uc_amount=8100, price=99.99)
+                UCPackage(name='60 UC', uc_amount=60, price=0.99, image_filename='uc_60.png'),
+                UCPackage(name='325 UC', uc_amount=325, price=4.99, image_filename='uc_325.png'),
+                UCPackage(name='660 UC', uc_amount=660, price=9.99, image_filename='uc_660.png'),
+                UCPackage(name='1800 UC', uc_amount=1800, price=24.99, image_filename='uc_1800.png'),
+                UCPackage(name='3850 UC', uc_amount=3850, price=49.99, image_filename='uc_3850.png'),
+                UCPackage(name='8100 UC', uc_amount=8100, price=99.99, image_filename='uc_8100.png')
             ]
-            for package in packages:
-                db.session.add(package)
+            db.session.add_all(packages)
 
-            db.session.commit()
+        db.session.commit()
 
 if __name__ == '__main__':
     init_db_and_data()

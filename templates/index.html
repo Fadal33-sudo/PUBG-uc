@@ -25,7 +25,7 @@
                 <div class="card-modern stats-card text-white">
                     <div class="card-body p-3 text-center">
                         <i class="bi bi-clock-history" style="font-size: 24px; margin-bottom: 8px; display: block;"></i>
-                        <div style="font-size: 18px; font-weight: 600;">{{ current_user.transactions|length }}</div>
+                        <div style="font-size: 18px; font-weight: 600;">{{ transaction_count }}</div>
                         <div style="font-size: 12px; opacity: 0.8;">Orders</div>
                     </div>
                 </div>
@@ -44,7 +44,11 @@
             {% for package in packages[:4] %}
             <div class="package-card">
                 <div class="d-flex align-items-center justify-content-center mb-3" style="height: 60px;">
+                    {% if package.image_filename %}
+                    <img src="{{ url_for('static', filename='images/uc_packages/' + package.image_filename) }}" alt="{{ package.name }}" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                    {% else %}
                     <i class="bi bi-gem" style="font-size: 32px; color: #4facfe;"></i>
+                    {% endif %}
                 </div>
                 <div class="package-amount">{{ package.uc_amount }} UC</div>
                 <div class="package-price">${{ "%.2f"|format(package.price) }}</div>
